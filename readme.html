@@ -1,0 +1,628 @@
+<!--
+MIT License
+
+Copyright (c) 2021 nab622
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<html>
+<head>
+
+<style>
+	body {
+		font-family: monospace;
+		background-color: #444;
+		color: #FFF;
+		text-shadow: 1px 1px #000;
+	}
+
+	h1 {
+		margin-bottom: 0px;
+		font-size: 24pt;
+	}
+
+	h2 {
+		margin-bottom: 0px;
+		font-size: 18pt;
+	}
+
+	h3 {
+		margin-bottom: 0px;
+		font-size: 14pt;
+	}
+
+	.object {
+		color: #3F3;
+	}
+
+	.key {
+		color: #FF3;
+	}
+
+	.value {
+		color: #93F;
+	}
+
+	.comment {
+		color: #F66;
+		font-size: 80%;
+	}
+
+	.red {
+		color: #F30;
+	}
+
+	.blue {
+		color: #6BF;
+	}
+
+	li {
+		margin-bottom: 20px;
+	}
+
+</style>
+
+<script src="7seg.js"></script>
+
+<script>
+
+// These arrays are sample animations
+// The braces {} indicate that the values inside them are individual 7seg elements to light up.
+
+circleAnimation = [ '{1}{3}{6}{7}{5}{2}', '{3}{6}{7}{5}{2}{1}', '{6}{7}{5}{2}{1}{3}', '{7}{5}{2}{1}{3}{6}', '{5}{2}{1}{3}{6}{7}', '{2}{1}{3}{6}{7}{5}' ]
+
+borderAnimation = [ '{17}{}{}{17}', '{5}{1}{7}{3}', '{2}{7}{1}{6}' ]
+
+midnightAnimation = [ '12:00', '' ]
+
+
+document.addEventListener("DOMContentLoaded", function(event) {
+
+// The 'element' specified in each of these objects WILL BE RESIZED to the height and width values specified in the object!
+// If no height or width is specified, one will be assigned. Values MUST be given in pixels.
+// The className values and style objects will be passed directly to each of the segments in the display.
+
+// If you want to make a custom light sequence for the 7seg, put the numbers between braces within the value string, like so:
+// value: 'this is {12356} Custom value string'
+
+/*	The segments of the 7seg are arranged as follows:
+	--1--
+  |       |
+  2       3
+  |       |
+	--4--
+  |       |
+  5       6
+  |       |
+	--7--
+*/
+
+	allCharsDisplay = {
+		parentElementID: allCharactersDisplay,		// The ID of the HTML element to render in
+		value: sevenSegJoin(sevenSegCharacters),		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 90,				// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+//		numDigits: 14,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#70F',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'left',			// How to align the text when rendering (Default is right)
+		lineSize: 15,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 0,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: { 'borderRadius' : '10px' },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	testDisplay1 = {
+		parentElementID: counterDisplay,		// The ID of the HTML element to render in
+		value: -30.5,			// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 120,			// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+		numDigits: 4,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#2F2',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'right',			// How to align the text when rendering (Default is right)
+		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: {  },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	testDisplay2 = {
+		parentElementID: messageDisplay,		// The ID of the HTML element to render in
+		value: 'Your face',		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 150,			// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+//		numDigits: 9,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#F00',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'right',			// How to align the text when rendering (Default is right)
+		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: {  'borderRadius' : '100%'  },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	testDisplay3 = {
+		parentElementID: circleAnimationDisplay,		// The ID of the HTML element to render in
+		value: '',		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 100,			// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+//		numDigits: 6,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#06F',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'left',			// How to align the text when rendering (Default is right)
+		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: {  },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	testDisplay4 = {
+		parentElementID: borderAnimationDisplay,		// ID of the HTML element to render in
+		value: '',		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 100,			// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+//		numDigits: 4,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#F80',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'left',			// How to align the text when rendering (Default is right)
+		lineSize: 7,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 5,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: {  },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	testDisplay5 = {
+		parentElementID: midnightDisplay,		// The ID of the HTML element to render in
+		value: '12:00',		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 160,			// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+		numDigits: 5,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#3FA',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'left',			// How to align the text when rendering (Default is right)
+		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: {  },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	testDisplay6 = {
+		parentElementID: marqueeDisplay1,		// The ID of the HTML element to render in
+		value: 'your face says hi.    ',		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 200,			// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+		numDigits: 5,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#FF0',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'right',			// How to align the text when rendering (Default is right)
+		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: {  },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	testDisplay7 = {
+		parentElementID: marqueeDisplay2,		// The ID of the HTML element to render in
+		value: 'your face says hi.    ',		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 200,			// The height of each character (In pixels)
+//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
+		numDigits: 6,			// The number of characters to display (Default is the number of characters in 'value' above)
+		color: '#F70',			// The color of the segments (Default is '#F00')
+//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
+		align: 'right',			// How to align the text when rendering (Default is right)
+		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		className: '',			// This className value will be passed directly to all segment lines
+		activeClassName: '',	// This className value will be passed only to active segment lines
+		style: { borderRadius: '10px' },			// This style object will be directly applied to all segment lines
+		activeStyle: {  },		// This style object will be directly applied only to active segment lines
+	}
+
+	sevenSegDraw(allCharsDisplay)
+	sevenSegNextNumber(testDisplay1)
+	sevenSegDraw(testDisplay2)
+	sevenSegAnimate(testDisplay3, circleAnimation, 100)
+	sevenSegAnimate(testDisplay4, borderAnimation, 117)
+	sevenSegAnimate(testDisplay5, midnightAnimation, 500)
+	sevenSegMarquee(testDisplay6, 151)
+	sevenSegMarquee(testDisplay7, 151, true)
+})
+
+
+function sevenSegNextNumber(displayObject) {
+	displayObject.value++
+	
+	sevenSegDraw(displayObject)
+	setTimeout(()=>{ sevenSegNextNumber(displayObject) }, 150)
+}
+
+</script>
+
+</head>
+<body>
+
+	<span style="text-align: center;">
+		<span style="color: #F90;">
+			<h1>
+				7seg
+				<br>
+				<span class="blue" style="font-size: 14pt;">
+				A retro style 7 segment display for web pages
+				</span>
+			</h1>
+		</span>
+	</span>
+
+	<span style="text-align: center; color: #999">
+		<h3>MIT License
+		<br>
+		<br>
+		Copyright (c) 2021 nab622
+		</h3>
+		<h4>
+		Permission is hereby granted, free of charge, to any person obtaining a copy
+		of this software and associated documentation files (the "Software"), to deal
+		in the Software without restriction, including without limitation the rights
+		to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		copies of the Software, and to permit persons to whom the Software is
+		furnished to do so, subject to the following conditions:
+		<br>
+		<br>
+		The above copyright notice and this permission notice shall be included in all
+		copies or substantial portions of the Software.
+		<br>
+		<br>
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		SOFTWARE.
+		</h4>
+		<br>
+		<br>
+	</span>
+
+	<h3>To use 7seg in your web page, add the javascript file to your page header, then create an <span class="object">object</span> to tell 7seg what to do (A template object can be found below). Then, do one of the following:
+	<br>
+	<br>
+	<ol>
+		<li>
+			If you want to display something static, call:
+			<br>
+			<span class="red">sevenSegDraw(<span class="object">objectName</span>)</span>
+		</li>
+		<li>
+			If you want to display an animation, create an array that contains each <span class="key">value</span> the 7seg should display in the order you want it to be displayed, then call:
+			<br>
+			<span class="red">sevenSegAnimate(<span class="object">objectName</span>, <span class="key">animationArray</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
+			<br>
+			<span class="comment">The object will not need a <span class="key">value</span> of its own, because the animation array will overwrite it.</span>
+		</li>
+		<li>
+		If you want to display a scrolling marquee, call:
+		<br>
+		<span class="red">sevenSegMarquee(<span class="object">objectName</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
+		<br>
+		If you want the marquee to scroll in reverse, add a <span class="key">true</span> to the end of the argument list:
+		<br>
+		<span class="red">sevenSegMarquee(<span class="object">objectName</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>, <span class="key">true</span>)
+		</li>
+	</ol>
+
+	Additionally, since 7seg has a limited character set, you can make custom characters by using braces <span class="blue">{ }</span> in the value string. The numbers 1-7 contained in the braces will light up the corresponding segments in the display.
+	<br>
+	For instance, in the <span class="key">value</span> string, if you have a value of <span class="object">'{147}'</span>, segments <span class="object">1</span>, <span class="object">4</span>, and <span class="object">7</span> will light up as a single character.
+	<br>
+	<br>
+	This can be used in animations and marquees.
+	<br>
+	<br>
+	<br>
+	<span class="blue">
+		Here is a sample object:
+	</span>
+	<br>
+	<br>
+	<span class="object">
+	sampleObject = {
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;parentElementID:
+	</span>
+	<span class="value">
+	&lt;element&gt;
+	</span>,
+	<span class="comment">
+		// ID of the HTML element to draw the 7seg on - size, width and background color of the element WILL be changed!
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;value:
+	</span>
+	<span class="value">
+	&lt;string or number&gt;
+	</span>,
+	<span class="comment">
+		// The value to be displayed in the 7seg.
+	</span>
+	<br>
+
+	<br>
+	<span class="blue">
+		&nbsp;&nbsp;&nbsp;&nbsp;// Everything below this point is optional
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;height:
+	</span>
+	<span class="value">
+	&lt;integer&gt;
+	</span>,
+	<span class="comment">
+		// The height of each character in the 7seg. This value will be used to resize the parent HTML element.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;width:
+	</span>
+	<span class="value">
+	&lt;integer&gt;
+	</span>,
+	<span class="comment">
+		// The width of each character in the 7seg. This value will be multiplied by <span class="blue">numDigits</span> and used to resize the parent HTML element.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;numDigits:
+	</span>
+	<span class="value">
+	&lt;integer&gt;
+	</span>,
+	<span class="comment">
+		// The number of digits to draw in the 7seg display. If not specified, then the length of <span class="key">value</span> will be used.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;color:
+	</span>
+	<span class="value">
+	&lt;HTML Color&gt;
+	</span>,
+	<span class="comment">
+		// The color of the segments in the 7seg display. If none is specified, <span class="key">#F00</span> will be used.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;glow:
+	</span>
+	<span class="value">
+	&lt;integer&gt;
+	</span>,
+	<span class="comment">
+		// The amount of glow in pixels to apply to lit segments of the 7seg (If not specified, this will be calculated as <span class="key">characterWidth * lineSize * 0.5</span>) Set to 0 to disable.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;align:
+	</span>
+	<span class="value">
+	&lt;<span class="blue">'right'</span> or <span class="blue">'left'</span>&gt;
+	</span>,
+	<span class="comment">
+		// How to align the characters on the display. <span class="key">'left'</span> will left-align the text. Anything else will right-align the text.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;lineSize:
+	</span>
+	<span class="value">
+	&lt;integer&gt;
+	</span>,
+	<span class="comment">
+		// The thickness of the colored line segments (As a percentage of the character width).
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;paddingSize:
+	</span>
+	<span class="value">
+	&lt;integer&gt;
+	</span>,
+	<span class="comment">
+		// The amount of padding between each segment (As a percentage of the character width).
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;borderPadding:
+	</span>
+	<span class="value">
+	&lt;integer&gt;
+	</span>,
+	<span class="comment">
+		// The thickness of the padding around the outside edges of each character (As a percentage of the character width).
+	</span>
+	<br>
+
+	<br>
+	<span class="blue">
+		&nbsp;&nbsp;&nbsp;&nbsp;// Style changes
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;className:
+	</span>
+	<span class="value">
+	&lt;string&gt;
+	</span>,
+	<span class="comment">
+		// This value will be applied to the className of all segments on the display.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;activeClassName:
+	</span>
+	<span class="value">
+	&lt;string&gt;
+	</span>,
+	<span class="comment">
+		// This value will be applied to the className of the active segments on the display.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;style:
+	</span>
+	<span class="value">
+	&lt;object&gt;
+	</span>,
+	<span class="comment">
+		// This object will be passed to the <span class="key">style</span> attribute of all segments on the display.
+	</span>
+	<br>
+
+	<span class="key">
+		&nbsp;&nbsp;&nbsp;&nbsp;activeStyle:
+	</span>
+	<span class="value">
+	&lt;object&gt;
+	</span>,
+	<span class="comment">
+		// This object will be passed to the <span class="key">style</span> attribute of the active segments on the display.
+	</span>
+	<br>
+
+	<span class="object">
+		}
+
+	</span>
+
+	</h2>
+	
+	<h1>
+		<span style="color: #A6F;">
+			Below are some sample objects showing the possibilities:
+		</span>
+	</h1>
+
+	<h2>All characters supported by 7seg:</h2>
+	<div id="allCharactersDisplay"></div>
+	<br>
+
+	<h2>Counter:</h2>
+	<div id="counterDisplay"></div>
+	<br>
+
+	<h2>Your face:</h2>
+	<div id="messageDisplay"></div>
+	<br>
+
+	<h2>Animation 1:</h2>
+	<div id="circleAnimationDisplay"></div>
+	<br>
+
+	<h2>Animation 2:</h2>
+	<div id="borderAnimationDisplay"></div>
+	<br>
+
+	<h2>Blinking midnight animation:</h2>
+	<div id="midnightDisplay"></div>
+	<br>
+
+	<h2>Your face marquee:</h2>
+	<div id="marqueeDisplay1"></div>
+	<br>
+
+	<h2>Your face marquee (Reverse):</h2>
+	<div id="marqueeDisplay2"></div>
+	<br>
+
+</body>
+</html>
