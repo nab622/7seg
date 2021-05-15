@@ -445,7 +445,7 @@ function sevenSegDraw(displayObject){
 		sevenSegInactive =	{ 'background-image': 'radial-gradient(15px, #000D 0%, #000E 100%)' }
 
 		glowAmount = 0
-		glowAmount = sevenSegGetNumericValue(displayObject, 'glow', renderHeight * defaultAspectRatio * lineSize * (1 / 100))
+		glowAmount = sevenSegGetNumericValue(displayObject, 'glow', renderHeight * defaultAspectRatio * lineSize * (1 / 100 / 2))
 		if(glowAmount > 0) {
 			Object.assign(sevenSegActive, { 'boxShadow' : '0px 0px ' + glowAmount + 'px ' + segmentColor })
 		}
