@@ -120,20 +120,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		// Everything below this point is optional
 		height: 90,				// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
-//		numDigits: 14,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#70F',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
 		align: 'left',			// How to align the text when rendering (Default is right)
 		lineSize: 15,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 0,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
 
 		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
 		style: { 'borderRadius' : '10px' },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	testDisplay1 = {
@@ -142,20 +136,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		// Everything below this point is optional
 		height: 120,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
 		numDigits: 4,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#2F2',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'right',			// How to align the text when rendering (Default is right)
 		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
-
-		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
-		style: {  },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	testDisplay2 = {
@@ -164,42 +149,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		// Everything below this point is optional
 		height: 150,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
-//		numDigits: 9,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#F00',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'right',			// How to align the text when rendering (Default is right)
 		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
 
 		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
 		style: {  'borderRadius' : '100%'  },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	testDisplay3 = {
 		parentElementID: circleAnimationDisplay,		// The ID of the HTML element to render in
-		value: '',		// The value to be shown on the 7seg display. Can be a string or a number
 
 		// Everything below this point is optional
 		height: 100,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
-//		numDigits: 6,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#06F',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'left',			// How to align the text when rendering (Default is right)
 		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
-
-		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
-		style: {  },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	testDisplay4 = {
@@ -208,20 +175,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		// Everything below this point is optional
 		height: 100,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
-//		numDigits: 4,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#F80',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'left',			// How to align the text when rendering (Default is right)
 		lineSize: 7,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 5,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
-
-		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
-		style: {  },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	testDisplay5 = {
@@ -230,20 +187,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		// Everything below this point is optional
 		height: 160,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
 		numDigits: 5,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#3FA',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'left',			// How to align the text when rendering (Default is right)
 		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
-
-		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
-		style: {  },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	testDisplay6 = {
@@ -252,20 +200,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		// Everything below this point is optional
 		height: 200,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
 		numDigits: 5,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#FF0',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'right',			// How to align the text when rendering (Default is right)
 		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
-
-		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
-		style: {  },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	testDisplay7 = {
@@ -274,20 +213,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 		// Everything below this point is optional
 		height: 200,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
 		numDigits: 6,			// The number of characters to display (Default is the number of characters in 'value' above)
 		color: '#F70',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'right',			// How to align the text when rendering (Default is right)
 		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
 		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
 
 		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
 		style: { borderRadius: '10px' },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
 	}
 
 	sevenSegDraw(allCharsDisplay)
@@ -370,7 +303,7 @@ function sevenSegNextNumber(displayObject) {
 			<br>
 			<span class="red">sevenSegAnimate(<span class="object">objectName</span>, <span class="key">animationArray</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
 			<br>
-			<span class="comment">The object will not need a <span class="key">value</span> of its own, because the animation array will overwrite it.</span>
+			<span class="comment">The object will not need a <span class="key">value</span> of its own, since the animation array will overwrite it.</span>
 		</li>
 		<li>
 		If you want to display a scrolling marquee, call:
@@ -383,15 +316,15 @@ function sevenSegNextNumber(displayObject) {
 		</li>
 	</ol>
 
-	Additionally, since 7seg has a limited character set, you can make custom characters by using braces <span class="blue">{ }</span> in the value string. The numbers 1-7 contained in the braces will light up the corresponding segments in the display.
+	Additionally, since 7seg has a limited character set, you can make custom characters by using braces <span class="blue">{ }</span> in the <span class="key">value</span> string. The numbers 1-7 contained in the braces will light up the corresponding segments in the display.
 	<br>
-	For instance, in the <span class="key">value</span> string, if you have a value of <span class="object">'{147}'</span>, segments <span class="object">1</span>, <span class="object">4</span>, and <span class="object">7</span> will light up as a single character.
+	For instance, in the <span class="key">value</span> string, if you have a value of <span class="blue">'{147}'</span>, segments <span class="blue">1</span>, <span class="blue">4</span>, and <span class="blue">7</span> will light up as a single character.
 	<br>
 	<br>
 	This can also be used in animations and marquees.
 	<br>
 	<br>
-	<span class="blue">The segments of the 7seg are numbered as follows:</span>
+	<span class="blue">The segments of each character are numbered as follows:</span>
 <pre class="value">
     --1--
   |       |
@@ -473,7 +406,7 @@ function sevenSegNextNumber(displayObject) {
 	&lt;integer&gt;
 	</span>,
 	<span class="comment">
-		// The number of digits to draw in the 7seg display. If not specified, then the length of <span class="key">value</span> will be used.
+		// The number of digits to draw in the 7seg display. If not specified, then the length of <span class="key">value</span> will be used. If you are animating the 7seg, MAKE SURE TO SPECIFY THIS VALUE.
 	</span>
 	<br>
 
