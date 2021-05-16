@@ -366,6 +366,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	</span>
 	<br>
 	<br>
+	<br>
 	<span class="object">
 	sampleObject = {
 	</span>
@@ -439,7 +440,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	&lt;HTML Color&gt;
 	</span>,
 	<span class="comment">
-		// The color of the segments in the 7seg display. If none is specified, <span class="key">#F00</span> will be used.
+		// The color of the segments in the 7seg display. If none is specified, <span class="blue">'#F00'</span> will be used.
 	</span>
 	<br>
 
@@ -450,7 +451,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	&lt;integer&gt;
 	</span>,
 	<span class="comment">
-		// The amount of glow in pixels to apply to lit segments of the 7seg (If not specified, this will be calculated as <span class="key">characterWidth * lineSize * 0.5</span>) Set to 0 to disable.
+		// The amount of glow in pixels to apply to lit segments of the 7seg (If not specified, this will be calculated as <span class="key">characterWidth * (lineSize / 100) / 2</span>). Set to 0 to disable.
 	</span>
 	<br>
 
@@ -550,8 +551,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	<span class="object">
 		}
-
 	</span>
+
+	<br>
+	<br>
+	<br>
+	<br>
 
 	</h2>
 	
