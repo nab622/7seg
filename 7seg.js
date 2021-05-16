@@ -22,56 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 /*
-
-//		HOW TO USE 7SEG
-//		HOW TO USE 7SEG
-//		HOW TO USE 7SEG
-
-// Link to this javascript file in your web page. Create an object based on the templates below, then pass your object into sevenSegDraw(). That's it!
-
-
-// The 'element' specified in each of these objects WILL BE RESIZED to the height and width values specified in the object!
-// If no height or width is specified, one will be assigned. Values MUST be given in pixels.
-// The className values and style objects will be passed directly to each of the segments in the display.
-
-// If you want to make a custom light sequence for the 7seg, put the numbers between braces within the value string, like so:
-// value: 'this is {12356} Custom value string'
-
-	testDisplay1 = {
-		parentElementID: counterDisplay,		// The ID of the HTML element to render in
-		value: '7seg',			// The value to be shown on the 7seg display. Can be a string or a number
-
-		// Everything below this point is optional
-		height: 300,			// The height of each character (In pixels)
-//		width: 60,				// The width of each character (In pixels [Default will be 2/3 of the height])
-		numDigits: 8,			// The number of characters to display (Default is the number of characters in 'value' above)
-		color: '#2F2',			// The color of the segments (Default is '#F00')
-//		glow: 10,				// This value specifies how much glow to apply to the lit segments of the display (In pixels - default is 1/2 of lineSize)
-		align: 'right',			// How to align the text when rendering (Default is right)
-		lineSize: 10,			// The width of the colored lines (A percentage of the 7seg character width)
-		paddingSize: 3,			// The amount of padding between elements (A percentage of the 7seg character width)
-		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
-
-		// Style changes
-		className: '',			// This className value will be passed directly to all segment lines
-		activeClassName: '',	// This className value will be passed only to active segment lines
-		style: {  },			// This style object will be directly applied to all segment lines
-		activeStyle: {  },		// This style object will be directly applied only to active segment lines
-	}
-*/
-
-/*	The segments of the 7seg are arranged as follows:
-	--1--
+    --1--
   |       |
-  2       3
+  2   8   3
   |       |
-	--4--
+    --4--
   |       |
-  5       6
+  5   9   6
   |       |
-	--7--
+    --7--  0 (Zero)
 */
 
 sevenSegCharacters = {
@@ -86,11 +46,14 @@ sevenSegCharacters = {
 	'7':	[ 1, 3, 6 ],
 	'8':	[ 1, 2, 3, 4, 5, 6, 7 ],
 	'9':	[ 1, 2, 3, 4, 6, 7 ],
+	'.':	[ 0 ],
 	'~':	[ 1 ],
 	'-':	[ 4 ],
 	'_':	[ 7 ],
 	'=':	[ 4, 7 ],
 	'`':	[ 2 ],
+	'/':	[ 4, 8, 9 ],
+	':':	[ 8, 9 ],
 	'\'':	[ 3 ],
 	'"':	[ 2, 3 ],
 	'|':	[ 2, 5 ],
@@ -106,7 +69,7 @@ sevenSegCharacters = {
 	'H':	[ 2, 3, 4, 5, 6 ],
 	'I':	[ 3, 6 ],
 	'J':	[ 3, 5, 6, 7 ],
-//	'K':	[  ],
+//	'K':	[ 2, 5, 8, 9 ],	//Doesn't really look much like a K...
 	'L':	[ 2, 5, 7 ],
 //	'M':	[  ],
 	'N':	[ 4, 5, 6 ],
@@ -115,7 +78,7 @@ sevenSegCharacters = {
 	'Q':	[ 1, 2, 3, 4, 6 ],
 	'R':	[ 4, 5 ],
 	'S':	[ 1, 2, 4, 6, 7 ],
-//	'T':	[  ],
+//	'T':	[ 1, 8, 9 ],	//Doesn't really look much like a T...
 	'U':	[ 2, 3, 5, 6, 7 ],
 //	'V':	[  ],
 //	'W':	[  ],
@@ -132,18 +95,9 @@ function sevenSegJoin(charList) {
 	return output.join('')
 }
 
-function sevenSegCountInputString(inputString) {
-	count = 0
-	i = 0
-
-	while(i < inputString.length) {
-		if(inputString[i] == '.' && i > 0 && inputString[i - 1] != '.') {
-			i++
-		}
-		count++
-		i++
-	}
-	return count
+function sevenSegCloneArray(inputArray) {
+	// We have to do this because arrays are copied by reference - and we CANNOT do that, since we'll be modifying them!
+	return [].concat(inputArray)
 }
 
 function sevenSegParseRenderString(inputObject) {
@@ -154,7 +108,6 @@ function sevenSegParseRenderString(inputObject) {
 		inputString = inputString.toString()
 	}
 	inputString = inputString.toUpperCase()
-	stringLength = sevenSegCountInputString(inputString)
 
 	numDigits = sevenSegGetNumericValue(inputObject, 'numDigits', -1)
 
@@ -162,38 +115,39 @@ function sevenSegParseRenderString(inputObject) {
 	align = align.toLowerCase()
 
 	i = 0
-	while((numDigits > 0 && output.length < stringLength && output.length < numDigits) || (numDigits <= 0 && i < stringLength)) {
+	while((numDigits > 0 && output.length < numDigits && i < inputString.length ) || (numDigits <= 0 && i < inputString.length)) {
 		segmentList = []
-		decimalPoint = false
 
-		if(inputString[i] == '.') {
-			decimalPoint = true
-		} else {
-			if(inputString[i] == '{') {
+		if(inputString[i] == '{') {
+			i++
+			while(inputString[i] != '}' && i < inputString.length) {
+				segmentList.push(inputString[i])
 				i++
-				while(inputString[i] != '}' && i < inputString.length) {
-					segmentList.push(inputString[i])
+			}
+		} else {
+			segmentList = sevenSegCloneArray(sevenSegGetValue(sevenSegCharacters, inputString[i], []))
+		}
+
+		i++
+		// If the next character is a period, we need to add it to the current character and skip the next one
+		if(i < inputString.length) {
+			if(!sevenSegContainedIn(segmentList, 0)) {
+				test = sevenSegGetValue(sevenSegCharacters, inputString[i], [])
+				if(test.length == 1 && test[0] == 0) {
+					segmentList.push(0)
 					i++
 				}
-			} else {
-				segmentList = sevenSegGetValue(sevenSegCharacters, inputString[i], [])
-			}
-
-			if(i + 1 < inputString.length && inputString[i + 1] == '.') {
-				decimalPoint = true
-				i++
 			}
 		}
-		output.push({ 'char': inputString[i], 'segments': segmentList, decimalPoint: decimalPoint })
-		i++
+		output.push({ 'segments': segmentList })
 	}
 
 	// Pad the output to match the correct length
 	while(output.length < numDigits) {
 		if(align == 'right') {
-			output.unshift({ 'segments': [], decimalPoint: false })
+			output.unshift({ 'segments': [] })
 		} else {
-			output.push({ 'segments': [], decimalPoint: false })
+			output.push({ 'segments': [] })
 		}
 	}
 
@@ -209,11 +163,11 @@ function sevenSegClearElement(e) {
 }
 
 function sevenSegSplitString(inputString) {
-	output = []
-	i = 0
+	let output = []
+	let i = 0
 
 	while(i < inputString.length) {
-		temp = ''
+		let temp = ''
 
 		if(inputString[i] == '.') {
 			temp += inputString[i]
@@ -240,6 +194,16 @@ function sevenSegSplitString(inputString) {
 	return output
 }
 
+function sevenSegCounter(displayObject, increment, delay) {
+	// inputObject must be the same object that is used to render a 7seg normally
+	// increment is the amount that will be added with each iteration
+	// delay is the number of milliseconds between iterations
+
+	sevenSegDraw(displayObject)
+	displayObject.value += increment
+	setTimeout(()=>{ sevenSegCounter(displayObject, increment, delay) }, delay)
+}
+
 function sevenSegAnimate(inputObject, animation, delay, count = 0) {
 	// inputObject must be the same object that is used to render a 7seg normally
 	// animation must be an array of values you want the 7seg to display, starting with the first one
@@ -248,7 +212,9 @@ function sevenSegAnimate(inputObject, animation, delay, count = 0) {
 	// Enforce a minimum value here so we don't get stuck
 	if(delay < 10) delay = 10
 
-	inputObject.value = animation[count % animation.length]
+	count %= animation.length
+
+	inputObject.value = animation[count]
 	sevenSegDraw(inputObject)
 	setTimeout(()=>{sevenSegAnimate(inputObject, animation, delay, count + 1)}, delay)
 }
@@ -326,14 +292,6 @@ function sevenSegContainedIn(haystack, needle) {
 	return false
 }
 
-function sevenSegRepeatElement(element, count) {
-	output = []
-	for(let i = 0; i < count; i++) {
-		output.push(element)
-	}
-	return output
-}
-
 function sevenSegPercent(inputValue) {
 	return inputValue.toString() + '%'
 }
@@ -390,11 +348,13 @@ function sevenSegDraw(displayObject){
 	element.style.backgroundColor = backgroundColor
 	element.style.display = 'flex'
 
-	centerColumnWidth = 100 - ((lineSize + paddingSize + borderPadding) * 2)
+	centerColumnWidth = (100 - ((lineSize * 3) + (paddingSize * 2) + (borderPadding * 2))) / 2
 	gridTemplateColumns = []
 	gridTemplateColumns.push(sevenSegPercent(borderPadding))
 	gridTemplateColumns.push(sevenSegPercent(lineSize))
 	gridTemplateColumns.push(sevenSegPercent(paddingSize))
+	gridTemplateColumns.push(sevenSegPercent(centerColumnWidth))
+	gridTemplateColumns.push(sevenSegPercent(lineSize))
 	gridTemplateColumns.push(sevenSegPercent(centerColumnWidth))
 	gridTemplateColumns.push(sevenSegPercent(paddingSize))
 	gridTemplateColumns.push(sevenSegPercent(lineSize))
@@ -406,22 +366,28 @@ function sevenSegDraw(displayObject){
 	rowPaddingSize = paddingSize * aspectRatio
 	rowBorderPadding = borderPadding * aspectRatio
 
-	lineHeight = (100 - ((rowLineSize * 3) + (rowPaddingSize * 4) + (rowBorderPadding * 2))) / 2
+	lineHeight = (100 - ((rowLineSize * 5) + (rowPaddingSize * 4) + (rowBorderPadding * 2))) / 4
 	gridTemplateRows = []
 	gridTemplateRows.push(sevenSegPercent(rowBorderPadding))
 	gridTemplateRows.push(sevenSegPercent(rowLineSize))
 	gridTemplateRows.push(sevenSegPercent(rowPaddingSize))
 	gridTemplateRows.push(sevenSegPercent(lineHeight))
+	gridTemplateRows.push(sevenSegPercent(rowLineSize))
+	gridTemplateRows.push(sevenSegPercent(lineHeight))
 	gridTemplateRows.push(sevenSegPercent(rowPaddingSize))
 	gridTemplateRows.push(sevenSegPercent(rowLineSize))
 	gridTemplateRows.push(sevenSegPercent(rowPaddingSize))
+	gridTemplateRows.push(sevenSegPercent(lineHeight))
+	gridTemplateRows.push(sevenSegPercent(rowLineSize))
 	gridTemplateRows.push(sevenSegPercent(lineHeight))
 	gridTemplateRows.push(sevenSegPercent(rowPaddingSize))
 	gridTemplateRows.push(sevenSegPercent(rowLineSize))
 	gridTemplateRows.push(sevenSegPercent(rowBorderPadding))
 	gridTemplateRows = gridTemplateRows.join(' ')
 
-	extraCount = 0
+	customClassName = sevenSegGetValue(displayObject, 'className', '')
+	customActiveClassName = sevenSegGetValue(displayObject, 'activeClassName', '')
+
 	for(let i = 0; i < renderArray.length; i++) {
 		renderCharacter = renderArray[i]
 
@@ -437,35 +403,40 @@ function sevenSegDraw(displayObject){
 			},
 		children: [] }
 
-		segmentColor = sevenSegGetValue(displayObject, 'color', '#F00')
+		let segmentColor = sevenSegGetValue(displayObject, 'color', '#F00')
 
 		// These objects are used for the styles on the HTML elements
-		sevenSegLights =	{ 'background-color': segmentColor, 'margin': 0, 'padding': 0 }
-		sevenSegActive =	{ 'background-image': 'radial-gradient(15px, #0000 0%, #0002 100%)' }
-		sevenSegInactive =	{ 'background-image': 'radial-gradient(15px, #000D 0%, #000E 100%)' }
+		let sevenSegLights =	{ 'background-color': segmentColor, 'margin': 0, 'padding': 0 }
+		let sevenSegActive =	{ 'background-image': 'radial-gradient(15px, #0000 0%, #0002 100%)' }
+		let sevenSegInactive =	{ 'background-image': 'radial-gradient(15px, #000000E5 0%, #000000F0 100%)' }
 
-		glowAmount = 0
+		let glowAmount = 0
 		glowAmount = sevenSegGetNumericValue(displayObject, 'glow', renderHeight * defaultAspectRatio * lineSize * (1 / 100 / 2))
 		if(glowAmount > 0) {
 			Object.assign(sevenSegActive, { 'boxShadow' : '0px 0px ' + glowAmount + 'px ' + segmentColor })
 		}
 
-		segment1 = {}
-		segment2 = {}
-		segment3 = {}
-		segment4 = {}
-		segment5 = {}
-		segment6 = {}
-		segment7 = {}
-		decimalStyle = {}
+		let segment1 = { 'gridColumn': '4 / span 3', 'gridRow': '2 / span 1' }
+		let segment2 = { 'gridColumn': '2 / span 1', 'gridRow': '4 / span 3' }
+		let segment3 = { 'gridColumn': '8 / span 1', 'gridRow': '4 / span 3' }
+		let segment4 = { 'gridColumn': '4 / span 3', 'gridRow': '8 / span 1' }
+		let segment5 = { 'gridColumn': '2 / span 1', 'gridRow': '10 / span 3' }
+		let segment6 = { 'gridColumn': '8 / span 1', 'gridRow': '10 / span 3' }
+		let segment7 = { 'gridColumn': '4 / span 3', 'gridRow': '14 / span 1' }
+		let segment8 = { 'gridColumn': '5 / span 1', 'gridRow': '5 / span 1' }
+		let segment9 = { 'gridColumn': '5 / span 1', 'gridRow': '11 / span 1' }
+		let segment0 = { 'gridColumn': '8 / span 1', 'gridRow': '14 / span 1' }
 
-		segment1on = false
-		segment2on = false
-		segment3on = false
-		segment4on = false
-		segment5on = false
-		segment6on = false
-		segment7on = false
+		let segment1on = false
+		let segment2on = false
+		let segment3on = false
+		let segment4on = false
+		let segment5on = false
+		let segment6on = false
+		let segment7on = false
+		let segment8on = false
+		let segment9on = false
+		let segment0on = false
 
 		if(sevenSegContainedIn(renderCharacter.segments, 1)) segment1on = true
 		if(sevenSegContainedIn(renderCharacter.segments, 2)) segment2on = true
@@ -474,6 +445,9 @@ function sevenSegDraw(displayObject){
 		if(sevenSegContainedIn(renderCharacter.segments, 5)) segment5on = true
 		if(sevenSegContainedIn(renderCharacter.segments, 6)) segment6on = true
 		if(sevenSegContainedIn(renderCharacter.segments, 7)) segment7on = true
+		if(sevenSegContainedIn(renderCharacter.segments, 8)) segment8on = true
+		if(sevenSegContainedIn(renderCharacter.segments, 9)) segment9on = true
+		if(sevenSegContainedIn(renderCharacter.segments, 0)) segment0on = true
 
 		Object.assign( segment1, sevenSegLights, ((segment1on) ? sevenSegActive : sevenSegInactive ), ((segment1on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
 		Object.assign( segment2, sevenSegLights, ((segment2on) ? sevenSegActive : sevenSegInactive ), ((segment2on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
@@ -482,25 +456,20 @@ function sevenSegDraw(displayObject){
 		Object.assign( segment5, sevenSegLights, ((segment5on) ? sevenSegActive : sevenSegInactive ), ((segment5on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
 		Object.assign( segment6, sevenSegLights, ((segment6on) ? sevenSegActive : sevenSegInactive ), ((segment6on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
 		Object.assign( segment7, sevenSegLights, ((segment7on) ? sevenSegActive : sevenSegInactive ), ((segment7on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( decimalStyle, sevenSegLights, displayObject.style, { 'border-radius': '100%', 'transform': 'translate(75%, 25%)' }, ((renderCharacter.decimalPoint) ? sevenSegActive : sevenSegInactive ), ((renderCharacter.decimalPoint) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
+		Object.assign( segment8, sevenSegLights, displayObject.style, { 'border-radius': '100%' }, ((segment8on) ? sevenSegActive : sevenSegInactive ), ((segment8on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
+		Object.assign( segment9, sevenSegLights, displayObject.style, { 'border-radius': '100%' }, ((segment9on) ? sevenSegActive : sevenSegInactive ), ((segment9on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
+		Object.assign( segment0, sevenSegLights, displayObject.style, { 'border-radius': '100%', 'transform': 'translate(75%, 25%)' }, ((segment0on) ? sevenSegActive : sevenSegInactive ), ((segment0on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
 
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 10))
-			newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment1, className: displayObject.className + ((segment1on) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 11))
-			newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment2, className: displayObject.className + ((segment2on) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 3))
-			newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment3, className: displayObject.className + ((segment3on) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 11))
-			newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment4, className: displayObject.className + ((segment4on) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 11))
-			newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment5, className: displayObject.className + ((segment5on) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 3))
-			newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment6, className: displayObject.className + ((segment6on) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 11))
-		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment7, className: displayObject.className + ((segment7on) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat({ elementType: 'div' })
-		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: decimalStyle, className: displayObject.className + ((renderCharacter.decimalPoint) ? displayObject.activeClassName : '') })
-		newDisplay.children = newDisplay.children.concat(sevenSegRepeatElement({ elementType: 'div' }, 8))
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment1, className: customClassName + ((segment1on) ? customActiveClassName: '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment2, className: customClassName + ((segment2on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment3, className: customClassName + ((segment3on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment4, className: customClassName + ((segment4on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment5, className: customClassName + ((segment5on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment6, className: customClassName + ((segment6on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment7, className: customClassName + ((segment7on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment8, className: customClassName + ((segment8on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment9, className: customClassName + ((segment9on) ? customActiveClassName : '') })
+		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment0, className: customClassName + ((segment0on) ? customActiveClassName : '') })
 
 		element.appendChild(sevenSegCreateElement(newDisplay))
 	}

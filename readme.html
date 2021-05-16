@@ -25,6 +25,8 @@ SOFTWARE.
 <html>
 <head>
 
+<title>7seg Readme and Info</title>
+
 <style>
 	body {
 		font-family: monospace;
@@ -86,9 +88,12 @@ SOFTWARE.
 // These arrays are sample animations
 // The braces {} indicate that the values inside them are individual 7seg elements to light up.
 
+//circleAnimation = [ '{19}{39}{68}{78}{58}{92}', '{93}{86}{87}{85}{92}{91}', '{86}{87}{85}{92}{91}{93}', '{87}{85}{92}{91}{93}{86}', '{58}{92}{91}{93}{86}{87}', '{92}{91}{93}{86}{87}{85}' ]
 circleAnimation = [ '{1}{3}{6}{7}{5}{2}', '{3}{6}{7}{5}{2}{1}', '{6}{7}{5}{2}{1}{3}', '{7}{5}{2}{1}{3}{6}', '{5}{2}{1}{3}{6}{7}', '{2}{1}{3}{6}{7}{5}' ]
 
-borderAnimation = [ '{17}{}{}{17}', '{5}{1}{7}{3}', '{2}{7}{1}{6}' ]
+borderAnimation = [ '{91}{7}{}{3}', '{7}{91}{}{6}', '{5}{}{19}{7}', '{2}{}{7}{91}', '{1}{7}{}{83}', '{7}{1}{8}{6}', '{5}{8}{1}{7}', '{28}{}{7}{1}' ]
+
+figureEightAnimation = [ '{28}{18}{38}{49}', '{48}{28}{18}{38}', '{69}{48}{28}{18}', '{79}{69}{48}{28}', '{59}{79}{69}{48}', '{49}{59}{79}{69}', '{38}{49}{59}{79}', '{18}{38}{49}{59}' ]
 
 midnightAnimation = [ '12:00', '' ]
 
@@ -103,15 +108,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
 // value: 'this is {12356} Custom value string'
 
 /*	The segments of the 7seg are arranged as follows:
-	--1--
+    --1--
   |       |
-  2       3
+  2   8   3
   |       |
-	--4--
+    --4--
   |       |
-  5       6
+  5   9   6
   |       |
-	--7--
+    --7--  0 (Zero)
 */
 
 	allCharsDisplay = {
@@ -182,6 +187,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	}
 
 	testDisplay5 = {
+		parentElementID: figureEightAnimationDisplay,		// ID of the HTML element to render in
+		value: '',		// The value to be shown on the 7seg display. Can be a string or a number
+
+		// Everything below this point is optional
+		height: 115,			// The height of each character (In pixels)
+		color: '#0F0',			// The color of the segments (Default is '#F00')
+		lineSize: 12,			// The width of the colored lines (A percentage of the 7seg character width)
+		paddingSize: 0,			// The amount of padding between elements (A percentage of the 7seg character width)
+		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
+
+		// Style changes
+		style: { borderRadius: '10px' },			// This style object will be directly applied to all segment lines
+	}
+
+	testDisplay6 = {
 		parentElementID: midnightDisplay,		// The ID of the HTML element to render in
 		value: '12:00',		// The value to be shown on the 7seg display. Can be a string or a number
 
@@ -194,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
 	}
 
-	testDisplay6 = {
+	testDisplay7 = {
 		parentElementID: marqueeDisplay1,		// The ID of the HTML element to render in
 		value: 'your face says hi.    ',		// The value to be shown on the 7seg display. Can be a string or a number
 
@@ -207,9 +227,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		borderPadding: 15,		// The amount of padding at the outer edge of the element (A percentage of the 7seg character width)
 	}
 
-	testDisplay7 = {
+	testDisplay8 = {
 		parentElementID: marqueeDisplay2,		// The ID of the HTML element to render in
-		value: 'your face says hi.    ',		// The value to be shown on the 7seg display. Can be a string or a number
+		value: 'your face says bye.    ',		// The value to be shown on the 7seg display. Can be a string or a number
 
 		// Everything below this point is optional
 		height: 200,			// The height of each character (In pixels)
@@ -223,23 +243,18 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		style: { borderRadius: '10px' },			// This style object will be directly applied to all segment lines
 	}
 
+
+	// These function calls will draw the 7segs based on the information in the objects above
 	sevenSegDraw(allCharsDisplay)
-	sevenSegNextNumber(testDisplay1)
+	sevenSegCounter(testDisplay1, 1, 153)
 	sevenSegDraw(testDisplay2)
 	sevenSegAnimate(testDisplay3, circleAnimation, 100)
 	sevenSegAnimate(testDisplay4, borderAnimation, 117)
-	sevenSegAnimate(testDisplay5, midnightAnimation, 500)
-	sevenSegMarquee(testDisplay6, 151)
-	sevenSegMarquee(testDisplay7, 151, true)
+	sevenSegAnimate(testDisplay5, figureEightAnimation, 123)
+	sevenSegAnimate(testDisplay6, midnightAnimation, 500)
+	sevenSegMarquee(testDisplay7, 151)
+	sevenSegMarquee(testDisplay8, 151, true)
 })
-
-
-function sevenSegNextNumber(displayObject) {
-	displayObject.value++
-	
-	sevenSegDraw(displayObject)
-	setTimeout(()=>{ sevenSegNextNumber(displayObject) }, 150)
-}
 
 </script>
 
@@ -299,6 +314,13 @@ function sevenSegNextNumber(displayObject) {
 			<span class="red">sevenSegDraw(<span class="object">objectName</span>)</span>
 		</li>
 		<li>
+			If you want to display a counter, call:
+			<br>
+			<span class="red">sevenSegCounter(<span class="object">objectName</span>, <span class="key">incrementValue</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
+			<br>
+			This will add <span class="key">increment</span> to the numeric <span class="key">value</span> in the given <span class="object">obect</span> every <span class="blue">frameTime</span> milliseconds.
+			</li>
+		<li>
 			If you want to display an animation, create an array that contains each <span class="key">value</span> the 7seg should display in the order you want it to be displayed, then call:
 			<br>
 			<span class="red">sevenSegAnimate(<span class="object">objectName</span>, <span class="key">animationArray</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
@@ -328,13 +350,13 @@ function sevenSegNextNumber(displayObject) {
 <pre class="value">
     --1--
   |       |
-  2       3
+  2   8   3
   |       |
     --4--
   |       |
-  5       6
+  5   9   6
   |       |
-    --7--
+    --7--  0 (Zero)
 </pre>
 
 	<br>
@@ -557,6 +579,10 @@ function sevenSegNextNumber(displayObject) {
 
 	<h2>Animation 2:</h2>
 	<div id="borderAnimationDisplay"></div>
+	<br>
+
+	<h2>Animation 3:</h2>
+	<div id="figureEightAnimationDisplay"></div>
 	<br>
 
 	<h2>Blinking midnight animation:</h2>
