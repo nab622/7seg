@@ -69,19 +69,19 @@ sevenSegCharacters = {
 	'H':	[ 2, 3, 4, 5, 6 ],
 	'I':	[ 3, 6 ],
 	'J':	[ 3, 5, 6, 7 ],
-//	'K':	[ 2, 5, 8, 9 ],	//Doesn't really look much like a K...
+//	'K':	[ 2, 5, 8, 9 ],	// Doesn't really look much like a K...
 	'L':	[ 2, 5, 7 ],
-//	'M':	[  ],
+	'M':	[ 1, 2, 3, 5, 6, 8 ],
 	'N':	[ 4, 5, 6 ],
 	'O':	[ 4, 5, 6, 7 ],
 	'P':	[ 1, 2, 3, 4, 5 ],
 	'Q':	[ 1, 2, 3, 4, 6 ],
 	'R':	[ 4, 5 ],
 	'S':	[ 1, 2, 4, 6, 7 ],
-//	'T':	[ 1, 8, 9 ],	//Doesn't really look much like a T...
+	'T':	[ 1, 8, 9 ],	// Doesn't really look much like a T...
 	'U':	[ 2, 3, 5, 6, 7 ],
-//	'V':	[  ],
-//	'W':	[  ],
+	'V':	[ 2, 3, 4, 9 ],	// Doesn't really look much like a V...
+	'W':	[ 2, 3, 5, 6, 7, 9 ],	// Doesn't really look like a W...
 //	'X':	[  ],
 	'Y':	[ 2, 3, 4, 6, 7 ],
 //	'Z':	[  ],
@@ -121,7 +121,9 @@ function sevenSegParseRenderString(inputObject) {
 		if(inputString[i] == '{') {
 			i++
 			while(inputString[i] != '}' && i < inputString.length) {
-				segmentList.push(inputString[i])
+				if(!isNaN(inputString[i] && inputString[i] >= 0 && inputString[i] <= 9)) {
+					segmentList.push(inputString[i])
+				}
 				i++
 			}
 		} else {
@@ -194,39 +196,44 @@ function sevenSegSplitString(inputString) {
 	return output
 }
 
-function sevenSegCounter(displayObject, increment, delay) {
+function sevenSegCounter(inputObject, increment, delay) {
 	// inputObject must be the same object that is used to render a 7seg normally
 	// increment is the amount that will be added with each iteration
 	// delay is the number of milliseconds between iterations
 
-	sevenSegDraw(displayObject)
-	displayObject.value += increment
-	setTimeout(()=>{ sevenSegCounter(displayObject, increment, delay) }, delay)
+	// Enforce a minimum value here so we don't lag
+	if(delay < 10) delay = 10
+
+	sevenSegStatic(inputObject)
+	inputObject.value += increment
+	inputObject.animationTimer = setTimeout(()=>{ sevenSegCounter(inputObject, increment, delay) }, delay)
 }
 
 function sevenSegAnimate(inputObject, animation, delay, count = 0) {
 	// inputObject must be the same object that is used to render a 7seg normally
-	// animation must be an array of values you want the 7seg to display, starting with the first one
+	// animation must be an array of objects. Each object is an animation frame
+	// containing the values you want to change in the 7seg
 	// delay is the number of milliseconds each animation frame will last
 
-	// Enforce a minimum value here so we don't get stuck
+	// Enforce a minimum value here so we don't lag
 	if(delay < 10) delay = 10
 
 	count %= animation.length
 
-	inputObject.value = animation[count]
-	sevenSegDraw(inputObject)
-	setTimeout(()=>{sevenSegAnimate(inputObject, animation, delay, count + 1)}, delay)
+	inputObject = Object.assign(inputObject, animation[count])
+
+	sevenSegStatic(inputObject)
+	inputObject.animationTimer = setTimeout(()=>{sevenSegAnimate(inputObject, animation, delay, count + 1)}, delay)
 }
 
 function sevenSegMarquee(inputObject, delay, reverse = false) {
 	// inputObject must be the same object that is used to render a 7seg normally
 	// delay is the number of milliseconds each animation frame will last
 
-	// Enforce a minimum value here so we don't get stuck
+	// Enforce a minimum value here so we don't lag
 	if(delay < 10) delay = 10
 
-	sevenSegDraw(inputObject)
+	sevenSegStatic(inputObject)
 	if(inputObject.value.length > 0) {
 		temp = sevenSegSplitString(inputObject.value)
 		if(reverse == true) {
@@ -236,7 +243,7 @@ function sevenSegMarquee(inputObject, delay, reverse = false) {
 		}
 
 		inputObject.value = temp.join('')
-		setTimeout(()=>{sevenSegMarquee(inputObject, delay, reverse)}, delay)
+		inputObject.animationTimer = setTimeout(()=>{sevenSegMarquee(inputObject, delay, reverse)}, delay)
 	}
 }
 
@@ -310,21 +317,27 @@ function sevenSegGetNumericValue(inputObject, getThisValue, defaultValue) {
 	return defaultValue
 }
 
-function sevenSegDraw(displayObject){
-	renderObjects = []
+function sevenSegStatic(displayObject){
+	let renderObjects = []
+
+	if(displayObject.animationTimer && displayObject.animationTimer === "object") {
+		clearTimeout(displayObject.animationTimer)
+	} else {
+		displayObject.animationTimer = {}
+	}
 
 	element = displayObject.parentElementID
 	sevenSegClearElement(element)
 
 	// These values are all percentages, based off of the COLUMN SIZE.
 	// The row size will calculate values based on these and the aspect ratio
-	lineSize = sevenSegGetNumericValue(displayObject, 'lineSize', 10)				// The width of the lines in the 7seg
-	paddingSize = sevenSegGetNumericValue(displayObject, 'paddingSize', 3)						// The amount of padding between elements
-	borderPadding = sevenSegGetNumericValue(displayObject, 'borderPadding', 15)		// The amount of padding at the outer edge of the element
+	let lineSize = sevenSegGetNumericValue(displayObject, 'lineSize', 10)				// The width of the lines in the 7seg
+	let paddingSize = sevenSegGetNumericValue(displayObject, 'paddingSize', 3)						// The amount of padding between elements
+	let borderPadding = sevenSegGetNumericValue(displayObject, 'borderPadding', 15)		// The amount of padding at the outer edge of the element
 
-	renderArray = sevenSegParseRenderString(displayObject)
+	let renderArray = sevenSegParseRenderString(displayObject)
 
-	totalDigits = renderArray.length
+	let totalDigits = renderArray.length
 
 	if(displayObject.align && displayObject.align.toLowerCase() == 'right') {
 		alignment = 'right'
@@ -333,23 +346,23 @@ function sevenSegDraw(displayObject){
 	}
 
 
-	defaultRenderHeight = 90
-	defaultAspectRatio = 2 / 3
+	let defaultRenderHeight = 90
+	let defaultAspectRatio = 2 / 3
 
-	renderHeight = sevenSegGetNumericValue(displayObject, 'height', defaultRenderHeight)		//Must be in pixels!
-	renderWidth = sevenSegGetNumericValue(displayObject, 'width', renderHeight * defaultAspectRatio)	//Must be in pixels! Also, use renderHeight here, not defaultRenderHeight
-	aspectRatio = renderWidth / renderHeight		// Aspect ratio (Width divided by height)
+	let renderHeight = sevenSegGetNumericValue(displayObject, 'height', defaultRenderHeight)		//Must be in pixels!
+	let renderWidth = sevenSegGetNumericValue(displayObject, 'width', renderHeight * defaultAspectRatio)	//Must be in pixels! Also, use renderHeight here, not defaultRenderHeight
+	let aspectRatio = renderWidth / renderHeight		// Aspect ratio (Width divided by height)
 
 	// Apply the width and height to the element we are populating
 	element.style.width = renderWidth * totalDigits + 'px'
 	element.style.height = renderHeight + 'px'
 
-	backgroundColor = sevenSegGetValue(displayObject, 'backgroundColor', '#000')
+	let backgroundColor = sevenSegGetValue(displayObject, 'backgroundColor', '#000')
 	element.style.backgroundColor = backgroundColor
 	element.style.display = 'flex'
 
-	centerColumnWidth = (100 - ((lineSize * 3) + (paddingSize * 2) + (borderPadding * 2))) / 2
-	gridTemplateColumns = []
+	let centerColumnWidth = (100 - ((lineSize * 3) + (paddingSize * 2) + (borderPadding * 2))) / 2
+	let gridTemplateColumns = []
 	gridTemplateColumns.push(sevenSegPercent(borderPadding))
 	gridTemplateColumns.push(sevenSegPercent(lineSize))
 	gridTemplateColumns.push(sevenSegPercent(paddingSize))
@@ -362,12 +375,12 @@ function sevenSegDraw(displayObject){
 	gridTemplateColumns = gridTemplateColumns.join(' ')
 
 	// Convert these to be used on the rows
-	rowLineSize = lineSize * aspectRatio
-	rowPaddingSize = paddingSize * aspectRatio
-	rowBorderPadding = borderPadding * aspectRatio
+	let rowLineSize = lineSize * aspectRatio
+	let rowPaddingSize = paddingSize * aspectRatio
+	let rowBorderPadding = borderPadding * aspectRatio
 
-	lineHeight = (100 - ((rowLineSize * 5) + (rowPaddingSize * 4) + (rowBorderPadding * 2))) / 4
-	gridTemplateRows = []
+	let lineHeight = (100 - ((rowLineSize * 5) + (rowPaddingSize * 4) + (rowBorderPadding * 2))) / 4
+	let gridTemplateRows = []
 	gridTemplateRows.push(sevenSegPercent(rowBorderPadding))
 	gridTemplateRows.push(sevenSegPercent(rowLineSize))
 	gridTemplateRows.push(sevenSegPercent(rowPaddingSize))
@@ -385,13 +398,13 @@ function sevenSegDraw(displayObject){
 	gridTemplateRows.push(sevenSegPercent(rowBorderPadding))
 	gridTemplateRows = gridTemplateRows.join(' ')
 
-	customClassName = sevenSegGetValue(displayObject, 'className', '')
-	customActiveClassName = sevenSegGetValue(displayObject, 'activeClassName', '')
+	let customClassName = sevenSegGetValue(displayObject, 'className', '')
+	let customActiveClassName = sevenSegGetValue(displayObject, 'activeClassName', '')
 
 	for(let i = 0; i < renderArray.length; i++) {
-		renderCharacter = renderArray[i]
+		let renderCharacter = renderArray[i]
 
-		newDisplay = { elementType: 'div',
+		let newDisplay = { elementType: 'div',
 		style : {
 			'display': 'grid',
 			'grid-template-columns': gridTemplateColumns,

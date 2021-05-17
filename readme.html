@@ -50,6 +50,20 @@ SOFTWARE.
 		font-size: 14pt;
 	}
 
+	li {
+		text-align: left;
+		margin-left: 30px;
+		margin-bottom: 20px;
+	}
+
+	.center {
+		text-align: center;
+	}
+
+	.left {
+		text-align: left;
+	}
+
 	.object {
 		color: #3F3;
 	}
@@ -59,7 +73,7 @@ SOFTWARE.
 	}
 
 	.value {
-		color: #93F;
+		color: #B5F;
 	}
 
 	.comment {
@@ -75,10 +89,6 @@ SOFTWARE.
 		color: #6BF;
 	}
 
-	li {
-		margin-bottom: 20px;
-	}
-
 </style>
 
 <script src="7seg.js"></script>
@@ -88,17 +98,41 @@ SOFTWARE.
 // These arrays are sample animations
 // The braces {} indicate that the values inside them are individual 7seg elements to light up.
 
-//circleAnimation = [ '{19}{39}{68}{78}{58}{92}', '{93}{86}{87}{85}{92}{91}', '{86}{87}{85}{92}{91}{93}', '{87}{85}{92}{91}{93}{86}', '{58}{92}{91}{93}{86}{87}', '{92}{91}{93}{86}{87}{85}' ]
-circleAnimation = [ '{1}{3}{6}{7}{5}{2}', '{3}{6}{7}{5}{2}{1}', '{6}{7}{5}{2}{1}{3}', '{7}{5}{2}{1}{3}{6}', '{5}{2}{1}{3}{6}{7}', '{2}{1}{3}{6}{7}{5}' ]
+circleAnimation = [ { value: '{1}{7}', color: '#F00' },
+					{ value: '{3}{5}', color: '#FF0' },
+					{ value: '{6}{2}', color: '#0F0' },
+					{ value: '{7}{1}', color: '#0FF' },
+					{ value: '{5}{3}', color: '#00F' },
+					{ value: '{2}{6}', color: '#F0F' } ]
 
-borderAnimation = [ '{91}{7}{}{3}', '{7}{91}{}{6}', '{5}{}{19}{7}', '{2}{}{7}{91}', '{1}{7}{}{83}', '{7}{1}{8}{6}', '{5}{8}{1}{7}', '{28}{}{7}{1}' ]
+borderAnimation = [ { value: '{91}{7}{}{3}' },
+					{ value: '{7}{91}{}{6}' },
+					{ value: '{5}{}{19}{7}' },
+					{ value: '{2}{}{7}{91}' },
+					{ value: '{1}{7}{}{83}' },
+					{ value: '{7}{1}{8}{6}' },
+					{ value: '{5}{8}{1}{7}' },
+					{ value: '{28}{}{7}{1}' } ]
 
-figureEightAnimation = [ '{28}{18}{38}{49}', '{48}{28}{18}{38}', '{69}{48}{28}{18}', '{79}{69}{48}{28}', '{59}{79}{69}{48}', '{49}{59}{79}{69}', '{38}{49}{59}{79}', '{18}{38}{49}{59}' ]
+figureEightAnimation = [ { value: '{28}{18}{38}{49}' },
+					{ value: '{48}{28}{18}{38}' },
+					{ value: '{69}{48}{28}{18}' },
+					{ value: '{79}{69}{48}{28}' },
+					{ value: '{59}{79}{69}{48}' },
+					{ value: '{49}{59}{79}{69}' },
+					{ value: '{38}{49}{59}{79}' },
+					{ value: '{18}{38}{49}{59}' } ]
 
-midnightAnimation = [ '12:00', '' ]
+midnightAnimation = [ { value: '12:00'}, { value: '' } ]
 
 
 document.addEventListener("DOMContentLoaded", function(event) {
+
+// If the javascript file is missing, terminate!
+if(typeof sevenSegStatic !== "function") {
+	document.getElementById("testAnimations").innerHTML = '<h1 class="center">Could not find <span class="red">7seg.js</span>!</h1><h2 class="center" style="margin-bottom: 400px;"><span class="red">7seg.js</span> must be in the same folder as this file for the test renders to work.</h1>'
+	return
+}
 
 // The 'element' specified in each of these objects WILL BE RESIZED to the height and width values specified in the object!
 // If no height or width is specified, one will be assigned. Values MUST be given in pixels.
@@ -118,6 +152,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
   |       |
     --7--  0 (Zero)
 */
+
+	titleDisplay = {
+		parentElementID: titleDisplayElement,		// The ID of the HTML element to render in
+		value: '7seg display',		// The value to be shown on the 7seg display. Can be a string or a number
+	}
 
 	allCharsDisplay = {
 		parentElementID: allCharactersDisplay,		// The ID of the HTML element to render in
@@ -245,9 +284,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 
 	// These function calls will draw the 7segs based on the information in the objects above
-	sevenSegDraw(allCharsDisplay)
+	sevenSegStatic(titleDisplay)
+	sevenSegStatic(allCharsDisplay)
 	sevenSegCounter(testDisplay1, 1, 153)
-	sevenSegDraw(testDisplay2)
+	sevenSegStatic(testDisplay2)
 	sevenSegAnimate(testDisplay3, circleAnimation, 100)
 	sevenSegAnimate(testDisplay4, borderAnimation, 117)
 	sevenSegAnimate(testDisplay5, figureEightAnimation, 123)
@@ -261,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 </head>
 <body>
 
-	<span style="text-align: center;">
+	<span class="center">
 		<span style="color: #F90;">
 			<h1>
 				7seg
@@ -273,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		</span>
 	</span>
 
-	<span style="text-align: center; color: #999">
+	<span class="center" style="color: #999">
 		<h3>MIT License
 		<br>
 		<br>
@@ -304,33 +344,39 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		<br>
 	</span>
 
-	<h3>To use 7seg in your web page, add the javascript file to your page header, then create an <span class="object">object</span> to tell 7seg what to do (A template object can be found below). Then, do one of the following:
+	<h1 class="blue center">What 7seg is</h1>
+	<h3 class="center">
+	7seg is a retro-style 7-segment display, with an additional three dots for colons and decimal points. It is written in javascript, and uses HTML elements to draw the 7-segment display, so it can be customized with CSS.
+	</h3>
+	<div id="titleDisplayElement" style="margin: 0 auto;"></div>
+
+	<h1 class="blue center">How to use 7seg</h1>
+	<h3 class="center">To use 7seg in your web page, add <span class="key">7seg.js</span> to your page header, then create an <span class="object">object</span> to tell 7seg what to do (A template object can be found below). Then, do one of the following:
 	<br>
 	<br>
 	<ol>
 		<li>
-			If you want to display something static, call:
+			If you want to display a static value:
 			<br>
-			<span class="red">sevenSegDraw(<span class="object">objectName</span>)</span>
+			<span class="red">sevenSegStatic(<span class="object">objectName</span>)</span>
 		</li>
 		<li>
-			If you want to display a counter, call:
+			If you want to display a counter that changes at specific intervals:
 			<br>
 			<span class="red">sevenSegCounter(<span class="object">objectName</span>, <span class="key">incrementValue</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
 			<br>
-			This will add <span class="key">increment</span> to the numeric <span class="key">value</span> in the given <span class="object">obect</span> every <span class="blue">frameTime</span> milliseconds.
+			This will add <span class="key">incrementValue</span> to the numeric <span class="key">value</span> in the given <span class="object">obect</span> every <span class="blue">frameTime</span> milliseconds.
 			</li>
 		<li>
-			If you want to display an animation, create an array that contains each <span class="key">value</span> the 7seg should display in the order you want it to be displayed, then call:
+			If you want to display an animation, create an array of objects. Each element in the array corresponds to a single frame of animation, and each object contains the parameters you want to change on the 7seg (Generally, the <span class="key">value</span>). Pass this array into the following function as <span class="key">animationArray</span>:
 			<br>
 			<span class="red">sevenSegAnimate(<span class="object">objectName</span>, <span class="key">animationArray</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
-			<br>
-			<span class="comment">The object will not need a <span class="key">value</span> of its own, since the animation array will overwrite it.</span>
 		</li>
 		<li>
-		If you want to display a scrolling marquee, call:
+		If you want to display a scrolling marquee:
 		<br>
 		<span class="red">sevenSegMarquee(<span class="object">objectName</span>, <span class="blue">frameTime &lt;Milliseconds&gt;</span>)</span>
+		<br>
 		<br>
 		If you want the marquee to scroll in reverse, add a <span class="key">true</span> to the end of the argument list:
 		<br>
@@ -338,9 +384,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 		</li>
 	</ol>
 
-	Additionally, since 7seg has a limited character set, you can make custom characters by using braces <span class="blue">{ }</span> in the <span class="key">value</span> string. The numbers 1-7 contained in the braces will light up the corresponding segments in the display.
+	Additionally, since 7seg has a limited character set, you can make custom characters by using braces <span class="blue">{ }</span> in the <span class="key">value</span> string. The numbers <span class="blue">0-9</span> contained in the braces will light up the corresponding segments in the display.
 	<br>
-	For instance, in the <span class="key">value</span> string, if you have a value of <span class="blue">'{147}'</span>, segments <span class="blue">1</span>, <span class="blue">4</span>, and <span class="blue">7</span> will light up as a single character.
+	For instance, if the <span class="key">value</span> string contains <span class="blue">'{147}'</span>, then segments <span class="blue">1</span>, <span class="blue">4</span>, and <span class="blue">7</span> will light up as a single character on the display.
 	<br>
 	<br>
 	This can also be used in animations and marquees.
@@ -348,210 +394,221 @@ document.addEventListener("DOMContentLoaded", function(event) {
 	<br>
 	<span class="blue">The segments of each character are numbered as follows:</span>
 <pre class="value">
-    --1--
-  |       |
-  2   8   3
-  |       |
-    --4--
-  |       |
-  5   9   6
-  |       |
-    --7--  0 (Zero)
+    --<span class="object">1</span>--          
+  |       |        
+  <span class="object">2</span>   <span class="blue">8</span>   <span class="object">3</span>        
+  |       |        
+    --<span class="object">4</span>--          
+  |       |        
+  <span class="object">5</span>   <span class="blue">9</span>   <span class="object">6</span>        
+  |       |        
+    --<span class="object">7</span>--  <span class="blue">0</span> (Zero)
 </pre>
 
 	<br>
-	<br>
-	<span class="blue">
-		Here is a sample object:
-	</span>
-	<br>
-	<br>
-	<br>
-	<span class="object">
-	sampleObject = {
-	</span>
-	<br>
-
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;parentElementID:
-	</span>
-	<span class="value">
-	&lt;element&gt;
-	</span>,
-	<span class="comment">
-		// ID of the HTML element to draw the 7seg on - size, width and background color of the element WILL be changed!
-	</span>
+	Finally, if you want to terminate a running animation, there are two ways:
+	<ol>
+		<li>
+			Re-render the 7seg <span class="object">object</span> using any of the above functions. All timers on that 7seg will be cleared during rendering.
+		</li>
+		<li>
+			Call <span class="blue">clearTimeout(<span class="object">object</span>.<span class="key">animationTimer</span>)</span>.
+			<br>
+			(During render, an object called <span class="key">animationTimer</span> is added to the 7seg, and is used for the javascript <span class="blue">setTimeout()</span> function.)
+		</li>
+	</ol>
 	<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;value:
-	</span>
-	<span class="value">
-	&lt;string or number&gt;
-	</span>,
-	<span class="comment">
-		// The value to be displayed in the 7seg.
-	</span>
-	<br>
+	<h2 class="blue center">
+		Here is a sample object to get started:
+	</h2>
+	<h3 class="left">
+		<span class="object">
+		sampleObject = {
+		</span>
+		<br>
 
-	<br>
-	<span class="blue">
-		&nbsp;&nbsp;&nbsp;&nbsp;// Everything below this point is optional
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;parentElementID:
+		</span>
+		<span class="value">
+		&lt;element&gt;
+		</span>,
+		<span class="comment">
+			// ID of the HTML element to draw the 7seg on - size, width and background color of the element WILL be changed!
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;height:
-	</span>
-	<span class="value">
-	&lt;integer&gt;
-	</span>,
-	<span class="comment">
-		// The height of each character in the 7seg. This value will be used to resize the parent HTML element.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;value:
+		</span>
+		<span class="value">
+		&lt;string or number&gt;
+		</span>,
+		<span class="comment">
+			// The value to be displayed in the 7seg.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;width:
-	</span>
-	<span class="value">
-	&lt;integer&gt;
-	</span>,
-	<span class="comment">
-		// The width of each character in the 7seg. This value will be multiplied by <span class="blue">numDigits</span> and used to resize the parent HTML element.
-	</span>
-	<br>
+		<br>
+		<span class="blue">
+			&nbsp;&nbsp;&nbsp;&nbsp;// Everything below this point is optional
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;numDigits:
-	</span>
-	<span class="value">
-	&lt;integer&gt;
-	</span>,
-	<span class="comment">
-		// The number of digits to draw in the 7seg display. If not specified, then the length of <span class="key">value</span> will be used. If you are animating the 7seg, MAKE SURE TO SPECIFY THIS VALUE.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;height:
+		</span>
+		<span class="value">
+		&lt;integer&gt;
+		</span>,
+		<span class="comment">
+			// The height of each character in the 7seg. This value will be used to resize the parent HTML element.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;color:
-	</span>
-	<span class="value">
-	&lt;HTML Color&gt;
-	</span>,
-	<span class="comment">
-		// The color of the segments in the 7seg display. If none is specified, <span class="blue">'#F00'</span> will be used.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;width:
+		</span>
+		<span class="value">
+		&lt;integer&gt;
+		</span>,
+		<span class="comment">
+			// The width of each character in the 7seg. This value will be multiplied by <span class="blue">numDigits</span> and used to resize the parent HTML element.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;glow:
-	</span>
-	<span class="value">
-	&lt;integer&gt;
-	</span>,
-	<span class="comment">
-		// The amount of glow in pixels to apply to lit segments of the 7seg (If not specified, this will be calculated as <span class="key">characterWidth * (lineSize / 100) / 2</span>). Set to 0 to disable.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;numDigits:
+		</span>
+		<span class="value">
+		&lt;integer&gt;
+		</span>,
+		<span class="comment">
+			// The number of digits to draw in the 7seg display. If not specified, then the length of <span class="key">value</span> will be used. If you are animating the 7seg, MAKE SURE TO SPECIFY THIS VALUE.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;align:
-	</span>
-	<span class="value">
-	&lt;<span class="blue">'right'</span> or <span class="blue">'left'</span>&gt;
-	</span>,
-	<span class="comment">
-		// How to align the characters on the display. <span class="blue">'left'</span> will left-align the text. Anything else will right-align the text.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;color:
+		</span>
+		<span class="value">
+		&lt;HTML Color&gt;
+		</span>,
+		<span class="comment">
+			// The color of the segments in the 7seg display. If none is specified, <span class="blue">'#F00'</span> will be used.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;lineSize:
-	</span>
-	<span class="value">
-	&lt;integer&gt;
-	</span>,
-	<span class="comment">
-		// The thickness of the colored line segments (As a percentage of the character width).
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;glow:
+		</span>
+		<span class="value">
+		&lt;integer&gt;
+		</span>,
+		<span class="comment">
+			// The amount of glow in pixels to apply to lit segments of the 7seg (If not specified, this will be calculated as <span class="key">characterWidth * (lineSize / 100) / 2</span>). Set to 0 to disable.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;paddingSize:
-	</span>
-	<span class="value">
-	&lt;integer&gt;
-	</span>,
-	<span class="comment">
-		// The amount of padding between each segment (As a percentage of the character width).
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;align:
+		</span>
+		<span class="value">
+		&lt;<span class="blue">'right'</span> or <span class="blue">'left'</span>&gt;
+		</span>,
+		<span class="comment">
+			// How to align the characters on the display. <span class="blue">'left'</span> will left-align the text. Anything else will right-align the text.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;borderPadding:
-	</span>
-	<span class="value">
-	&lt;integer&gt;
-	</span>,
-	<span class="comment">
-		// The thickness of the padding around the outside edges of each character (As a percentage of the character width).
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;lineSize:
+		</span>
+		<span class="value">
+		&lt;integer&gt;
+		</span>,
+		<span class="comment">
+			// The thickness of the colored line segments (As a percentage of the character width).
+		</span>
+		<br>
 
-	<br>
-	<span class="blue">
-		&nbsp;&nbsp;&nbsp;&nbsp;// Style changes
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;paddingSize:
+		</span>
+		<span class="value">
+		&lt;integer&gt;
+		</span>,
+		<span class="comment">
+			// The amount of padding between each segment (As a percentage of the character width).
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;className:
-	</span>
-	<span class="value">
-	&lt;string&gt;
-	</span>,
-	<span class="comment">
-		// This value will be applied to the className of all segments on the display.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;borderPadding:
+		</span>
+		<span class="value">
+		&lt;integer&gt;
+		</span>,
+		<span class="comment">
+			// The thickness of the padding around the outside edges of each character (As a percentage of the character width).
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;activeClassName:
-	</span>
-	<span class="value">
-	&lt;string&gt;
-	</span>,
-	<span class="comment">
-		// This value will be applied to the className of the active segments on the display.
-	</span>
-	<br>
+		<br>
+		<span class="blue">
+			&nbsp;&nbsp;&nbsp;&nbsp;// Style changes
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;style:
-	</span>
-	<span class="value">
-	&lt;object&gt;
-	</span>,
-	<span class="comment">
-		// This object will be passed to the <span class="key">style</span> attribute of all segments on the display.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;className:
+		</span>
+		<span class="value">
+		&lt;string&gt;
+		</span>,
+		<span class="comment">
+			// This value will be applied to the className of all segments on the display.
+		</span>
+		<br>
 
-	<span class="key">
-		&nbsp;&nbsp;&nbsp;&nbsp;activeStyle:
-	</span>
-	<span class="value">
-	&lt;object&gt;
-	</span>,
-	<span class="comment">
-		// This object will be passed to the <span class="key">style</span> attribute of the active segments on the display.
-	</span>
-	<br>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;activeClassName:
+		</span>
+		<span class="value">
+		&lt;string&gt;
+		</span>,
+		<span class="comment">
+			// This value will be applied to the className of the active segments on the display.
+		</span>
+		<br>
 
-	<span class="object">
-		}
-	</span>
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;style:
+		</span>
+		<span class="value">
+		&lt;object&gt;
+		</span>,
+		<span class="comment">
+			// This object will be passed to the <span class="key">style</span> attribute of all segments on the display.
+		</span>
+		<br>
+
+		<span class="key">
+			&nbsp;&nbsp;&nbsp;&nbsp;activeStyle:
+		</span>
+		<span class="value">
+		&lt;object&gt;
+		</span>,
+		<span class="comment">
+			// This object will be passed to the <span class="key">style</span> attribute of the active segments on the display.
+		</span>
+		<br>
+
+		<span class="object">
+			}
+		</span>
+	</h3>
 
 	<br>
 	<br>
@@ -560,47 +617,48 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 	</h2>
 	
-	<h1>
-		<span style="color: #A6F;">
-			Below are some sample objects showing the possibilities:
-		</span>
-	</h1>
+	<div id="testAnimations">
+		<h1>
+			<span style="color: #A6F;">
+				Below are some sample 7segs showing the possibilities (Seizure warning!):
+			</span>
+		</h1>
 
-	<h2>All characters supported by 7seg:</h2>
-	<div id="allCharactersDisplay"></div>
-	<br>
+		<h2>All characters supported by 7seg:</h2>
+		<div id="allCharactersDisplay"></div>
+		<br>
 
-	<h2>Counter:</h2>
-	<div id="counterDisplay"></div>
-	<br>
+		<h2>Counter:</h2>
+		<div id="counterDisplay"></div>
+		<br>
 
-	<h2>Your face:</h2>
-	<div id="messageDisplay"></div>
-	<br>
+		<h2>Your face:</h2>
+		<div id="messageDisplay"></div>
+		<br>
 
-	<h2>Animation 1:</h2>
-	<div id="circleAnimationDisplay"></div>
-	<br>
+		<h2>Animation 1:</h2>
+		<div id="circleAnimationDisplay"></div>
+		<br>
 
-	<h2>Animation 2:</h2>
-	<div id="borderAnimationDisplay"></div>
-	<br>
+		<h2>Animation 2:</h2>
+		<div id="borderAnimationDisplay"></div>
+		<br>
 
-	<h2>Animation 3:</h2>
-	<div id="figureEightAnimationDisplay"></div>
-	<br>
+		<h2>Animation 3:</h2>
+		<div id="figureEightAnimationDisplay"></div>
+		<br>
 
-	<h2>Blinking midnight animation:</h2>
-	<div id="midnightDisplay"></div>
-	<br>
+		<h2>Blinking midnight animation:</h2>
+		<div id="midnightDisplay"></div>
+		<br>
 
-	<h2>Your face marquee:</h2>
-	<div id="marqueeDisplay1"></div>
-	<br>
+		<h2>Your face marquee:</h2>
+		<div id="marqueeDisplay1"></div>
+		<br>
 
-	<h2>Your face marquee (Reverse):</h2>
-	<div id="marqueeDisplay2"></div>
-	<br>
-
+		<h2>Your face marquee (Reverse):</h2>
+		<div id="marqueeDisplay2"></div>
+		<br>
+	</div>
 </body>
 </html>
