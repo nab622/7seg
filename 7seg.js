@@ -71,7 +71,7 @@ sevenSegCharacters = {
 	'J':	[ 3, 5, 6, 7 ],
 //	'K':	[ 2, 5, 8, 9 ],	// Doesn't really look much like a K...
 	'L':	[ 2, 5, 7 ],
-	'M':	[ 1, 2, 3, 5, 6, 8 ],
+	'M':	[ 2, 3, 5, 6, 8 ],
 	'N':	[ 4, 5, 6 ],
 	'O':	[ 4, 5, 6, 7 ],
 	'P':	[ 1, 2, 3, 4, 5 ],
@@ -81,7 +81,7 @@ sevenSegCharacters = {
 	'T':	[ 1, 8, 9 ],	// Doesn't really look much like a T...
 	'U':	[ 2, 3, 5, 6, 7 ],
 	'V':	[ 2, 3, 4, 9 ],	// Doesn't really look much like a V...
-	'W':	[ 2, 3, 5, 6, 7, 9 ],	// Doesn't really look like a W...
+	'W':	[ 2, 3, 5, 6, 9 ],	// Doesn't really look like a W...
 //	'X':	[  ],
 	'Y':	[ 2, 3, 4, 6, 7 ],
 //	'Z':	[  ],
