@@ -317,6 +317,46 @@ function sevenSegGetNumericValue(inputObject, getThisValue, defaultValue) {
 	return defaultValue
 }
 
+function sevenSegParseColor(inputColor, multiplier = 1, additional = 0) {
+	let output = ''
+
+	try {
+		switch(inputColor.length) {
+			case 1:
+				let temp = (parseInt('0x' + inputColor) * multiplier) + additional
+				if(temp > 0xF) temp = 0xF
+				output = temp.toString(16).repeat(6)
+				break
+			case 3:
+				output = ''
+				for(let i = 0; i < 3; i++)
+				{
+					let temp = Math.round(parseInt('0x' + inputColor[i]) * multiplier) + additional
+					if(temp > 0xF) temp = 0xF
+					output += temp.toString(16).repeat(2)
+				}
+				break
+			case 6:
+				output = ''
+				additional = parseInt(additional.toString(16).repeat(2))
+				for(let i = 0; i < 6; i += 2)
+				{
+					let temp = Math.round(parseInt('0x' + inputColor[i] + inputColor[i + 1]) * multiplier) + additional
+					if(temp > 0xFF) temp = 0xFF
+					output += temp.toString(16)
+				}
+				break
+			default:
+				return 'FFFFFF'
+		}
+	}
+	catch {
+		return 'FFFFFF'
+	}
+	if(output.length > 6) return 'FFFFFF'
+	return output
+}
+
 function sevenSegStatic(displayObject){
 	let renderObjects = []
 
@@ -401,6 +441,29 @@ function sevenSegStatic(displayObject){
 	let customClassName = sevenSegGetValue(displayObject, 'className', '')
 	let customActiveClassName = sevenSegGetValue(displayObject, 'activeClassName', '')
 
+
+	let activeColor1 = sevenSegGetValue(displayObject, 'color', 'F00')
+	let activeColor2 = sevenSegParseColor(activeColor1, 1 / 16 * 15)
+
+	let inactiveColor1 = sevenSegParseColor(activeColor1, 1 / 16 * 2)
+	let inactiveColor2 = sevenSegParseColor(activeColor1, 1 / 16)
+
+	let activeMaxColor = sevenSegParseColor(activeColor1, 1, 1)
+	let inactiveMaxColor = sevenSegParseColor(activeColor1, 1 / 16 * 2, 1)
+
+	// These objects are used for the styles on the HTML elements
+	let sevenSegActive =	{ 'background-image': 'radial-gradient(circle, #' + activeMaxColor + ' 0%, #' + activeColor1 + ' 10%, #' + activeColor2 + ' 100%)' }
+	let sevenSegInactive =	{ 'background-image': 'radial-gradient(circle, #' + inactiveMaxColor + ' 0%, #' + inactiveColor1 + ' 10%, #' + inactiveColor2 + ' 100%)' }
+console.log(sevenSegActive)
+console.log(sevenSegInactive)
+	let glowAmount = 0
+	glowAmount = sevenSegGetNumericValue(displayObject, 'glow', renderHeight * defaultAspectRatio * (lineSize / 100) / 2)
+	if(glowAmount > 0) {
+		Object.assign(sevenSegActive, { 'boxShadow' : '0px 0px ' + glowAmount + 'px ' + activeColor1 })
+	}
+
+
+
 	for(let i = 0; i < renderArray.length; i++) {
 		let renderCharacter = renderArray[i]
 
@@ -415,19 +478,6 @@ function sevenSegStatic(displayObject){
 			'overflow': 'hidden',
 			},
 		children: [] }
-
-		let segmentColor = sevenSegGetValue(displayObject, 'color', '#F00')
-
-		// These objects are used for the styles on the HTML elements
-		let sevenSegLights =	{ 'background-color': segmentColor, 'margin': 0, 'padding': 0 }
-		let sevenSegActive =	{ 'background-image': 'radial-gradient(15px, #0000 0%, #0002 100%)' }
-		let sevenSegInactive =	{ 'background-image': 'radial-gradient(15px, #000000E5 0%, #000000F0 100%)' }
-
-		let glowAmount = 0
-		glowAmount = sevenSegGetNumericValue(displayObject, 'glow', renderHeight * defaultAspectRatio * (lineSize / 100) / 2)
-		if(glowAmount > 0) {
-			Object.assign(sevenSegActive, { 'boxShadow' : '0px 0px ' + glowAmount + 'px ' + segmentColor })
-		}
 
 		let segment1 = { 'gridColumn': '4 / span 3', 'gridRow': '2 / span 1' }
 		let segment2 = { 'gridColumn': '2 / span 1', 'gridRow': '4 / span 3' }
@@ -462,16 +512,16 @@ function sevenSegStatic(displayObject){
 		if(sevenSegContainedIn(renderCharacter.segments, 9)) segment9on = true
 		if(sevenSegContainedIn(renderCharacter.segments, 0)) segment0on = true
 
-		Object.assign( segment1, sevenSegLights, ((segment1on) ? sevenSegActive : sevenSegInactive ), ((segment1on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( segment2, sevenSegLights, ((segment2on) ? sevenSegActive : sevenSegInactive ), ((segment2on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( segment3, sevenSegLights, ((segment3on) ? sevenSegActive : sevenSegInactive ), ((segment3on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( segment4, sevenSegLights, ((segment4on) ? sevenSegActive : sevenSegInactive ), ((segment4on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( segment5, sevenSegLights, ((segment5on) ? sevenSegActive : sevenSegInactive ), ((segment5on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( segment6, sevenSegLights, ((segment6on) ? sevenSegActive : sevenSegInactive ), ((segment6on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( segment7, sevenSegLights, ((segment7on) ? sevenSegActive : sevenSegInactive ), ((segment7on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
-		Object.assign( segment8, sevenSegLights, displayObject.style, { 'border-radius': '100%' }, ((segment8on) ? sevenSegActive : sevenSegInactive ), ((segment8on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
-		Object.assign( segment9, sevenSegLights, displayObject.style, { 'border-radius': '100%' }, ((segment9on) ? sevenSegActive : sevenSegInactive ), ((segment9on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
-		Object.assign( segment0, sevenSegLights, displayObject.style, { 'border-radius': '100%', 'transform': 'translate(75%, 25%)' }, ((segment0on) ? sevenSegActive : sevenSegInactive ), ((segment0on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
+		Object.assign( segment1, ((segment1on) ? sevenSegActive : sevenSegInactive ), ((segment1on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
+		Object.assign( segment2, ((segment2on) ? sevenSegActive : sevenSegInactive ), ((segment2on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
+		Object.assign( segment3, ((segment3on) ? sevenSegActive : sevenSegInactive ), ((segment3on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
+		Object.assign( segment4, ((segment4on) ? sevenSegActive : sevenSegInactive ), ((segment4on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
+		Object.assign( segment5, ((segment5on) ? sevenSegActive : sevenSegInactive ), ((segment5on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
+		Object.assign( segment6, ((segment6on) ? sevenSegActive : sevenSegInactive ), ((segment6on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
+		Object.assign( segment7, ((segment7on) ? sevenSegActive : sevenSegInactive ), ((segment7on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ), displayObject.style )
+		Object.assign( segment8, displayObject.style, { 'border-radius': '100%' }, ((segment8on) ? sevenSegActive : sevenSegInactive ), ((segment8on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
+		Object.assign( segment9, displayObject.style, { 'border-radius': '100%' }, ((segment9on) ? sevenSegActive : sevenSegInactive ), ((segment9on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
+		Object.assign( segment0, displayObject.style, { 'border-radius': '100%', 'transform': 'translate(75%, 25%)' }, ((segment0on) ? sevenSegActive : sevenSegInactive ), ((segment0on) ? sevenSegGetValue(displayObject, 'activeStyle', {}) : {} ),  )
 
 		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment1, className: customClassName + ((segment1on) ? customActiveClassName: '') })
 		newDisplay.children = newDisplay.children.concat({ elementType: 'div', style: segment2, className: customClassName + ((segment2on) ? customActiveClassName : '') })
