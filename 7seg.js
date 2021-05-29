@@ -455,8 +455,7 @@ function sevenSegStatic(displayObject){
 	// These objects are used for the styles on the HTML elements
 	let sevenSegActive =	{ 'background-image': 'radial-gradient(circle, #' + activeMaxColor + ' 0%, #' + activeColor1 + ' 10%, #' + activeColor2 + ' 100%)' }
 	let sevenSegInactive =	{ 'background-image': 'radial-gradient(circle, #' + inactiveMaxColor + ' 0%, #' + inactiveColor1 + ' 10%, #' + inactiveColor2 + ' 100%)' }
-console.log(sevenSegActive)
-console.log(sevenSegInactive)
+
 	let glowAmount = 0
 	glowAmount = sevenSegGetNumericValue(displayObject, 'glow', renderHeight * defaultAspectRatio * (lineSize / 100) / 2)
 	if(glowAmount > 0) {
