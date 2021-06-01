@@ -108,6 +108,7 @@ function sevenSegParseRenderString(inputObject) {
 	if(typeof(inputString) != "string") {
 		inputString = inputString.toString()
 	}
+
 	inputString = inputString.toUpperCase()
 
 	numDigits = sevenSegGetNumericValue(inputObject, 'numDigits', -1)
@@ -116,7 +117,10 @@ function sevenSegParseRenderString(inputObject) {
 	align = align.toLowerCase()
 
 	i = 0
-	while((numDigits > 0 && output.length < numDigits && i < inputString.length ) || (numDigits <= 0 && i < inputString.length)) {
+	while(
+		(numDigits > 0 && output.length < numDigits && i < inputString.length ) ||
+		(numDigits <= 0 && i < inputString.length)
+		) {
 		segmentList = []
 
 		if(inputString[i] == '{') {
@@ -305,7 +309,7 @@ function sevenSegPercent(inputValue) {
 }
 
 function sevenSegGetValue(inputObject, getThisValue, defaultValue) {
-	if(inputObject[getThisValue]) {
+	if(inputObject.hasOwnProperty(getThisValue)) {
 		return inputObject[getThisValue]
 	}
 	return defaultValue
@@ -320,6 +324,7 @@ function sevenSegGetNumericValue(inputObject, getThisValue, defaultValue) {
 
 function sevenSegParseColor(inputColor, multiplier = 1, additional = 0) {
 	let output = ''
+	let defaultColor = 'FFFFFF'
 
 	try {
 		switch(inputColor.length) {
@@ -348,17 +353,17 @@ function sevenSegParseColor(inputColor, multiplier = 1, additional = 0) {
 				}
 				break
 			default:
-				return 'FFFFFF'
+				return defaultColor
 		}
 	}
 	catch {
-		return 'FFFFFF'
+		return defaultColor
 	}
-	if(output.length > 6) return 'FFFFFF'
+	if(output.length > 6) return defaultColor
 	return output
 }
 
-function sevenSegStatic(displayObject){
+function sevenSegStatic(displayObject) {
 	let renderObjects = []
 
 	if(displayObject.animationTimer && displayObject.animationTimer === "object") {
