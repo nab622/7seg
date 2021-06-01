@@ -309,7 +309,7 @@ function sevenSegPercent(inputValue) {
 }
 
 function sevenSegGetValue(inputObject, getThisValue, defaultValue) {
-	if(inputObject.hasOwnProperty(getThisValue)) {
+	if(inputObject.hasOwnProperty(getThisValue) && typeof(inputObject[getThisValue]) !== 'undefined') {
 		return inputObject[getThisValue]
 	}
 	return defaultValue
