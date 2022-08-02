@@ -349,7 +349,7 @@ function sevenSegParseColor(inputColor, multiplier = 1, additional = 0) {
 				{
 					let temp = Math.round(parseInt('0x' + inputColor[i] + inputColor[i + 1]) * multiplier) + additional
 					if(temp > 0xFF) temp = 0xFF
-					if(temp < 0xF) output += '0'
+					if(temp <= 0xF) output += '0'
 					output += temp.toString(16)
 				}
 				break
